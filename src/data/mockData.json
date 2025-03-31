@@ -1,0 +1,20 @@
+{
+    "aircraft": [
+      { "id": "1", "model": "Boeing 737", "register": "ABC-123", "status": "Disponível" },
+      { "id": "2", "model": "Airbus A320", "register": "XYZ-789", "status": "Em Manutenção" }
+    ],
+    "classes": [
+      { "id": "1", "name": "Turma A", "horario": "Seg e Qua, 14h - 16h", "instrutor": "Fulano da Silva" },
+      { "id": "2", "name": "Turma B", "horario": "Terça e Quinta, 10h - 12h", "instrutor": "Beltrano de Tal" }
+    ],
+    "instructors": [
+      { "id": "1", "name": "Instrutor A", "email": "instrutora@exemplo.com", "telefone": "(11) 1234-5678", "habilitacoes": ["Licença de Voo", "Instrução de Voo"] }
+    ],
+    "students": [
+      { "id": "1", "name": "Aluno A", "email": "alunoa@exemplo.com", "telefone": "(11) 9876-5432", "status": "Ativo", "licencas": ["Voo Básico"] }
+    ],
+    "admin": [
+      { "id": "1", "nome": "Admin Exemplo", "email": "admin@exemplo.com", "senha": "123", "cargo": "Presidente" }
+    ]
+  }
+  
