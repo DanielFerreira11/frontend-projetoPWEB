@@ -2,14 +2,22 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import mockData from "../data/mockData.json";
 import logo from "../assets/ACPB.png";
+import { login } from "../services/authService";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async(e: React.FormEvent) => {
     e.preventDefault();
+    try{
+      const {token} = await login(email, senha);
+      localStorage.setItem("token",token);
+      navigate("/profile")
+    } catch (error){
+      alert("Email ou senha inválidos");
+    }
     const admin = mockData.admin.find(
       (user) => user.email === email && user.senha === senha
     );

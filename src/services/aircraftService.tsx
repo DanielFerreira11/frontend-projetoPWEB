@@ -1,5 +1,4 @@
-import axios, { AxiosResponse } from "axios";
-
+import api from "./api"
 export interface Aircraft {
   id: string;
   model: string;
@@ -7,15 +6,15 @@ export interface Aircraft {
   status: string;
 }
 
-const API_URL = "http://localhost:8008"; // ajuste conforme a porta do back-end
+const API_URL = "http://localhost:8008";
 
 export const getAircrafts = async (): Promise<Aircraft[]> => {
-  const response: AxiosResponse<Aircraft[]> = await axios.get(`${API_URL}/aircraft`);
+  const response = await api.get(`${API_URL}/aircraft`);
   return response.data;
 };
 
 export const createAircraft = async (aircraft: Omit<Aircraft, "id">): Promise<Aircraft> => {
-  const response: AxiosResponse<Aircraft> = await axios.post(`${API_URL}/aircraft`, aircraft);
+  const response = await api.post(`${API_URL}/aircraft`, aircraft);
   return response.data;
 };
 
@@ -23,10 +22,10 @@ export const updateAircraft = async (
   id: string,
   aircraft: Partial<Omit<Aircraft, "id">>
 ): Promise<Aircraft> => {
-  const response: AxiosResponse<Aircraft> = await axios.put(`${API_URL}/aircraft/${id}`, aircraft);
+  const response = await api.put(`${API_URL}/aircraft/${id}`, aircraft);
   return response.data;
 };
 
 export const deleteAircraft = async (id: string): Promise<void> => {
-  await axios.delete(`${API_URL}/aircraft/${id}`);
+  await api.delete(`${API_URL}/aircraft/${id}`);
 };
