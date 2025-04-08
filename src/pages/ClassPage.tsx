@@ -7,6 +7,7 @@ import {
   updateClass,
   deleteClass,
 } from "../services/classService";
+import { getInstructors, Instructor } from "../services/instructorService";
 import { FiCheck, FiX, FiEdit, FiTrash2 } from "react-icons/fi";
 
 const FiCheckIcon = FiCheck as unknown as React.FC<{ color?: string }>;
@@ -14,19 +15,26 @@ const FiXIcon = FiX as unknown as React.FC<{ color?: string }>;
 const FiEditIcon = FiEdit as unknown as React.FC<{ color?: string }>;
 const FiTrash2Icon = FiTrash2 as unknown as React.FC<{ color?: string }>;
 
+interface ClassFormData {
+  name: string;
+  schedule: string;
+  instructorId: string;
+}
+
 const ClassPage: React.FC = () => {
   const [classes, setClasses] = useState<ClassModel[]>([]);
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState<Omit<ClassModel, "id">>({
+  const [formData, setFormData] = useState<ClassFormData>({
     name: "",
     schedule: "",
-    instructor: "",
+    instructorId: "",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState<Omit<ClassModel, "id">>({
+  const [editFormData, setEditFormData] = useState<ClassFormData>({
     name: "",
     schedule: "",
-    instructor: "",
+    instructorId: "",
   });
 
   const fetchClasses = async () => {
@@ -38,12 +46,22 @@ const ClassPage: React.FC = () => {
     }
   };
 
+  const fetchInstructors = async () => {
+    try {
+      const data = await getInstructors();
+      setInstructors(data);
+    } catch (error) {
+      console.error("Erro ao buscar instrutores:", error);
+    }
+  };
+
   useEffect(() => {
     fetchClasses();
+    fetchInstructors();
   }, []);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     isEdit: boolean = false
   ) => {
     const { name, value } = e.target;
@@ -59,7 +77,7 @@ const ClassPage: React.FC = () => {
     try {
       const newClass = await createClass(formData);
       setClasses((prev) => [...prev, newClass]);
-      setFormData({ name: "", schedule: "", instructor: "" });
+      setFormData({ name: "", schedule: "", instructorId: "" });
       setModalOpen(false);
     } catch (error) {
       console.error("Erro ao criar turma:", error);
@@ -71,14 +89,16 @@ const ClassPage: React.FC = () => {
     setEditFormData({
       name: classe.name,
       schedule: classe.schedule,
-      instructor: classe.instructor,
+      instructorId: classe.instructor?.id || "",
     });
   };
 
   const handleEditSubmit = async (id: string) => {
     try {
       const updated = await updateClass(id, editFormData);
-      setClasses((prev) => prev.map((c) => (c.id === id ? updated : c)));
+      setClasses((prev) =>
+        prev.map((c) => (c.id === id ? updated : c))
+      );
       setEditingId(null);
     } catch (error) {
       console.error("Erro ao atualizar turma:", error);
@@ -156,9 +176,7 @@ const ClassPage: React.FC = () => {
     boxSizing: "border-box",
   };
 
-  const modalSelectStyle: React.CSSProperties = {
-    ...modalInputStyle,
-  };
+  const modalSelectStyle: React.CSSProperties = { ...modalInputStyle };
 
   const modalButtonStyle: React.CSSProperties = {
     padding: "10px 20px",
@@ -216,15 +234,20 @@ const ClassPage: React.FC = () => {
                   style={modalInputStyle}
                   required
                 />
-                <input
-                  type="text"
-                  name="instructor"
-                  placeholder="Instrutor"
-                  value={formData.instructor}
+                <select
+                  name="instructorId"
+                  value={formData.instructorId}
                   onChange={(e) => handleInputChange(e, false)}
-                  style={modalInputStyle}
+                  style={modalSelectStyle}
                   required
-                />
+                >
+                  <option value="">Selecione o instrutor</option>
+                  {instructors.map((instr) => (
+                    <option key={instr.id} value={instr.id}>
+                      {instr.name}
+                    </option>
+                  ))}
+                </select>
                 <div style={{ marginTop: "10px" }}>
                   <button type="submit" style={modalButtonStyle}>
                     Salvar
@@ -282,15 +305,22 @@ const ClassPage: React.FC = () => {
                 </td>
                 <td style={tdStyle}>
                   {editingId === classe.id ? (
-                    <input
-                      type="text"
-                      name="instructor"
-                      value={editFormData.instructor}
+                    <select
+                      name="instructorId"
+                      value={editFormData.instructorId}
                       onChange={(e) => handleInputChange(e, true)}
-                      style={{ ...modalInputStyle, marginBottom: 0 }}
-                    />
+                      style={{ ...modalSelectStyle, marginBottom: 0 }}
+                      required
+                    >
+                      <option value="">Selecione o instrutor</option>
+                      {instructors.map((instr) => (
+                        <option key={instr.id} value={instr.id}>
+                          {instr.name}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
-                    classe.instructor
+                    classe.instructor ? classe.instructor.name : ""
                   )}
                 </td>
                 <td style={tdStyle}>
